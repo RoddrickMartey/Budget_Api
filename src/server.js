@@ -31,13 +31,6 @@ const logStream = fs.createWriteStream(path.join(logsDir, "access.log"), {
 
 // Middleware
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Adjust this to match your frontend URL
-    credentials: true, // Allow cookies
-  })
-);
-// app.use(helmet());
 
 // Log both to file and console
 app.use(morgan("combined", { stream: logStream })); // Logs to file
