@@ -19,7 +19,6 @@ const app = express();
 app.use(
   cors({
     origin: "https://budget-client-eight.vercel.app", // Change this to your frontend URL
-    methods: "GET,POST,PATCH,DELETE",
     credentials: true, // Allow cookies/auth headers
   })
 );
