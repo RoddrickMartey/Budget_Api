@@ -5,48 +5,32 @@ export const loginUser = async (req, res) => {
   const { name, email } = req.body;
 
   try {
-    // Check if the user already exists
+    // Check if the user exists
     let user = await prisma.user.findUnique({
       where: { email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        balance: true,
-        createdAt: true,
-      },
+      select: { id: true, name: true, email: true, balance: true, createdAt: true },
     });
 
     if (!user) {
-      // Create a new user if not found
+      // Create new user if not found
       user = await prisma.user.create({
         data: { name, email },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          balance: true,
-          createdAt: true,
-        },
+        select: { id: true, name: true, email: true, balance: true, createdAt: true },
       });
     }
 
-    // Generate JWT token using user ID
-    const token = jwt.sign(
-      { id: user.id }, // Payload (user ID)
-      process.env.JWT_SECRET, // Secret key (store in .env)
-      { expiresIn: "7d" } // Token expires in 7 days
-    );
+    // Generate JWT token
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Set cookie before sending JSON response
+    // ✅ Set HTTP-only Cookie for authentication
     res.cookie("token", token, {
-      httpOnly: true, // Prevents access from JavaScript
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      sameSite: "strict", // Prevent CSRF attacks
+      httpOnly: true, // Prevent JavaScript access
+      secure: true, // Must be true in production with HTTPS
+      sameSite: "none", // Required for cross-origin requests
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    // Send response after setting cookie
+    // ✅ Send response AFTER setting cookie
     return res.status(200).json({ user });
   } catch (error) {
     console.error("Error:", error);
