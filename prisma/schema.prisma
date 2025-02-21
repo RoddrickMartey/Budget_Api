@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String       // Your name
+  email       String       @unique
+  balance     Float        @default(0.0)  // Current balance
+  transactions Transaction[]
+  createdAt   DateTime     @default(now())
+}
+
+model Transaction {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      TransactionType  // Enum: "INCOME" or "EXPENSE"
+  name      String           // Name of the transaction (e.g., "Grocery shopping", "Salary")
+  amount    Float            // Money added or spent
+  detail    String           // Sufficient space for transaction details
+  category  TransactionCategory // Enum for transaction categories
+  date      DateTime         @default(now()) // Timestamp of the transaction
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionCategory {
+  SALARY
+  FOOD
+  TRANSPORT
+  SHOPPING
+  UTILITIES
+  INTERNET
+  OTHER
+}
